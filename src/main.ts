@@ -2,7 +2,7 @@ import './style.css';
 
 import { Scene, Game, WEBGL, GameObjects } from 'phaser';
 import * as settings from './settings';
-import { LEVELS, DUDE_INDEX } from './assets/levels';
+import { LEVELS, DUDE_INDEX, WALL_INDEX } from './assets/levels';
 
 import tileSrc from './assets/sokoban_tilesheet.png';
 
@@ -10,6 +10,7 @@ const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 class GameScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
+  private walls!: Phaser.GameObjects.Sprite[];
   private keys!: Map<number, Phaser.Input.Keyboard.Key>;
 
   constructor() {
@@ -37,10 +38,15 @@ class GameScene extends Scene {
     if (!layer) {
       throw new Error('fail to create layer');
     }
+    this.walls = layer.createFromTiles(WALL_INDEX, 0, {
+      key: 'tiles',
+      frame: WALL_INDEX,
+      origin: 0,
+    });
     const player = layer
-      .createFromTiles(53, 0, {
+      .createFromTiles(DUDE_INDEX, 0, {
         key: 'tiles',
-        frame: 53,
+        frame: DUDE_INDEX,
         origin: 0,
       })
       ?.pop();
@@ -49,6 +55,12 @@ class GameScene extends Scene {
       throw new Error('fail to load player');
     }
     this.player = player;
+
+    this.setupkeys();
+    this.setupPlayerAnims();
+  }
+
+  private setupPlayerAnims() {
     this.player.anims.create({
       key: 'left',
       frames: this.player.anims.generateFrameNumbers('tiles', {
@@ -85,7 +97,6 @@ class GameScene extends Scene {
       frameRate: 10,
       repeat: -1,
     });
-    this.setupkeys();
   }
   private setupkeys() {
     this.keys = new Map();
@@ -124,12 +135,18 @@ class GameScene extends Scene {
       const dir = this.getDir(anim);
       const targetX = this.player.x + dir[0] * settings.TILE_SIZE;
       const targetY = this.player.y + dir[1] * settings.TILE_SIZE;
+      const hitWall = this.isWall(this.walls, targetX, targetY);
+      const toX = hitWall ? this.player.x : targetX;
+      const toY = hitWall ? this.player.y : targetY;
+      const duration = hitWall ? 0 : 500;
+      // TODO: increment steps if not hit wall
+      // TODO: can move box
       this.tweens.add({
         targets: this.player,
         ease: 'linear',
-        x: targetX,
-        y: targetY,
-        duration: 500,
+        x: toX,
+        y: toY,
+        duration: duration,
         onStart: () => {
           this.player.anims.play(anim);
         },
@@ -138,6 +155,9 @@ class GameScene extends Scene {
         },
       });
     }
+  }
+  private isWall(walls: Phaser.GameObjects.Sprite[], x: number, y: number) {
+    return walls.some((w) => w.x === x && w.y === y);
   }
 
   private getDir(anim: string) {

@@ -7,3 +7,4 @@ export const LEVELS = Object.entries(levelObj).reduce((res, [_, e], i) => {
   return res;
 }, {} as Record<number, any>);
 export const DUDE_INDEX = 53;
+export const WALL_INDEX = 100;
