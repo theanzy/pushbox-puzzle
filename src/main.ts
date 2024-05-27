@@ -10,6 +10,7 @@ const canvas = document.getElementById('game') as HTMLCanvasElement;
 
 class GameScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
+  private keys!: Map<number, Phaser.Input.Keyboard.Key>;
 
   constructor() {
     super('scene-game');
@@ -84,12 +85,72 @@ class GameScene extends Scene {
       frameRate: 10,
       repeat: -1,
     });
+    this.setupkeys();
+  }
+  private setupkeys() {
+    this.keys = new Map();
+    this.addJustKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+    this.addJustKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
+    this.addJustKey(Phaser.Input.Keyboard.KeyCodes.UP);
+    this.addJustKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+  }
+
+  private addJustKey(k: number) {
+    if (!this.input.keyboard) {
+      throw new Error('no keyboard connected');
+    }
+    this.keys.set(k, this.input.keyboard.addKey(k));
+  }
+  private isJustDown(k: number) {
+    const key = this.keys.get(k);
+    if (!key) {
+      return false;
+    }
+    return Phaser.Input.Keyboard.JustDown(key);
   }
 
   update(time: number, delta: number) {
-    if (!this.player.anims.isPlaying) {
-      this.player.anims.play('down');
+    let anim = '';
+    if (this.isJustDown(Phaser.Input.Keyboard.KeyCodes.LEFT)) {
+      anim = 'left';
+    } else if (this.isJustDown(Phaser.Input.Keyboard.KeyCodes.RIGHT)) {
+      anim = 'right';
+    } else if (this.isJustDown(Phaser.Input.Keyboard.KeyCodes.UP)) {
+      anim = 'up';
+    } else if (this.isJustDown(Phaser.Input.Keyboard.KeyCodes.DOWN)) {
+      anim = 'down';
     }
+    if (anim && !this.tweens.isTweening(this.player)) {
+      const dir = this.getDir(anim);
+      const targetX = this.player.x + dir[0] * settings.TILE_SIZE;
+      const targetY = this.player.y + dir[1] * settings.TILE_SIZE;
+      this.tweens.add({
+        targets: this.player,
+        ease: 'linear',
+        x: targetX,
+        y: targetY,
+        duration: 500,
+        onStart: () => {
+          this.player.anims.play(anim);
+        },
+        onComplete: () => {
+          this.player.anims.pause(this.player.anims.currentAnim?.frames[0]);
+        },
+      });
+    }
+  }
+
+  private getDir(anim: string) {
+    if (anim === 'left') {
+      return [-1, 0];
+    } else if (anim === 'right') {
+      return [1, 0];
+    } else if (anim === 'up') {
+      return [0, -1];
+    } else if (anim === 'down') {
+      return [0, 1];
+    }
+    return [0, 0];
   }
 }
 
