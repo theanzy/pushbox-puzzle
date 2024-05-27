@@ -3,24 +3,49 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "",
+    "activeFile": "level1.json",
     "expandedProjectPaths": [
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
+        "level1.json": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 820,
+                "y": 646.5
+            }
+        },
+        "level1.json#Level": {
+            "scaleInDock": 1
+        },
+        "level1.tmx": {
+            "scale": 1,
+            "selectedLayer": 0,
+            "viewCenter": {
+                "x": 84,
+                "y": 311.5
+            }
+        },
+        "level1.tmx#Level": {
+            "scaleInDock": 1
+        }
     },
     "last.exportedFilePath": "C:/workspace/web/front-end/game/pushbox-js/src/assets/levels",
     "last.imagePath": "C:/workspace/web/front-end/game/pushbox-js/src/assets",
     "map.height": 10,
     "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
-    "map.lastUsedFormat": "tmx",
+    "map.lastUsedFormat": "json",
     "map.tileHeight": 64,
     "map.tileWidth": 64,
     "map.width": 10,
     "openFiles": [
+        "level1.json"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "level1.json",
+        "level1.tmx"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {
