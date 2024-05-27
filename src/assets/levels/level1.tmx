@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="10" height="10" tilewidth="64" tileheight="64" infinite="0" nextlayerid="2" nextobjectid="1">
+ <editorsettings>
+  <export target="level1.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="Level" tilewidth="64" tileheight="64" tilecount="104" columns="13">
+  <image source="../sokoban_tilesheet.png" width="832" height="512"/>
+ </tileset>
+ <layer id="1" name="Level" width="10" height="10">
+  <data encoding="csv">
+0,0,100,100,100,100,100,0,0,0,
+0,0,100,0,0,0,100,0,0,0,
+100,100,100,0,0,0,100,0,0,0,
+100,78,54,37,0,0,100,0,0,0,
+100,100,100,0,37,78,100,0,0,0,
+100,78,100,100,37,0,100,0,0,0,
+100,0,100,0,78,0,100,100,0,0,
+100,37,0,37,37,37,78,100,0,0,
+100,0,0,0,78,0,0,100,0,0,
+100,100,100,100,100,100,100,100,0,0
+</data>
+ </layer>
+</map>
