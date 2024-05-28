@@ -20,22 +20,26 @@ export class GameScene extends Scene {
   private keys!: Map<number, Phaser.Input.Keyboard.Key>;
   private targetRecord!: Record<string, number>;
   private totalTargets!: Record<string, number>;
+  private currentLevel!: number;
 
   constructor() {
     super('scene-game');
   }
-  preload({ level }: { level: number } = { level: 0 }) {
+  preload() {
     this.load.spritesheet('tiles', tileSrc, {
       frameWidth: settings.TILE_SIZE,
       startFrame: 0,
     });
-    console.log('levels', LEVELS);
-    this.load.tilemapTiledJSON('map', LEVELS[level]);
+    for (let i = 0; i < Object.keys(LEVELS).length; i++) {
+      const key = `map-${i + 1}`;
+      this.load.tilemapTiledJSON(key, LEVELS[i]);
+    }
   }
 
-  create() {
+  create({ level = 1 }: { level: number }) {
+    this.currentLevel = level;
     const map = this.make.tilemap({
-      key: 'map',
+      key: `map-${level}`,
       tileWidth: settings.TILE_SIZE,
       tileHeight: settings.TILE_SIZE,
     });
@@ -47,6 +51,7 @@ export class GameScene extends Scene {
     if (!layer) {
       throw new Error('fail to create layer');
     }
+
     this.walls = layer.createFromTiles(WALL_INDEX, 0, {
       key: 'tiles',
       frame: WALL_INDEX - 1,
@@ -228,7 +233,12 @@ export class GameScene extends Scene {
             const won = Object.keys(this.targetRecord).every((color) => {
               return this.targetRecord[color] === this.totalTargets[color];
             });
-            console.log({ won });
+            if (won) {
+              this.scene.start('scene-level-end', {
+                moves: 22,
+                currentLevel: this.currentLevel,
+              });
+            }
           },
         });
       }
