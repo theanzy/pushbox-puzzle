@@ -242,6 +242,7 @@ export class GameScene extends Scene {
               return this.targetRecord[color] === this.totalTargets[color];
             });
             if (won) {
+              this.sfx.get('footstep')?.stop();
               this.endLevel();
             }
           },
