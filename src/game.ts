@@ -11,7 +11,15 @@ import {
 } from './assets/levels';
 
 import tileSrc from './assets/sokoban_tilesheet.png';
+import footStepSrc from './assets/sounds/footstep_grass_000.ogg';
+import moveSoundSrc from './assets/sounds/impactPlank_medium_003.ogg';
+import hitTargetSoundSrc from './assets/sounds/select_007.ogg';
+import wontMoveSrc from './assets/sounds/error_005.ogg';
 
+type AnySound =
+  | Phaser.Sound.WebAudioSound
+  | Phaser.Sound.NoAudioSound
+  | Phaser.Sound.HTML5AudioSound;
 export class GameScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
   private walls!: Phaser.GameObjects.Sprite[];
@@ -22,6 +30,7 @@ export class GameScene extends Scene {
   private totalTargets!: Record<string, number>;
   private currentLevel!: number;
 
+  private sfx!: Map<string, AnySound>;
   constructor() {
     super('scene-game');
   }
@@ -30,6 +39,11 @@ export class GameScene extends Scene {
       frameWidth: settings.TILE_SIZE,
       startFrame: 0,
     });
+    this.load.audio('footstep', footStepSrc);
+    this.load.audio('move-box', moveSoundSrc);
+    this.load.audio('hit-target', hitTargetSoundSrc);
+    this.load.audio('wont-move', wontMoveSrc);
+
     for (let i = 0; i < Object.keys(LEVELS).length; i++) {
       const key = `map-${i + 1}`;
       this.load.tilemapTiledJSON(key, LEVELS[i]);
@@ -97,6 +111,16 @@ export class GameScene extends Scene {
 
     this.setupkeys();
     this.setupPlayerAnims();
+    this.sfx = new Map();
+
+    this.sfx.set('footstep', this.sound.add('footstep'));
+    this.sfx.get('footstep')?.setVolume(0.02);
+    this.sfx.set('move-box', this.sound.add('move-box'));
+    this.sfx.get('move-box')?.setVolume(0.2);
+    this.sfx.set('hit-target', this.sound.add('hit-target'));
+    this.sfx.get('hit-target')?.setVolume(0.2);
+    this.sfx.set('wont-move', this.sound.add('wont-move'));
+    this.sfx.get('wont-move')?.setVolume(0.2);
   }
 
   private setupPlayerAnims() {
@@ -174,7 +198,7 @@ export class GameScene extends Scene {
     return Phaser.Input.Keyboard.JustDown(key);
   }
 
-  update(time: number, delta: number) {
+  update() {
     let anim = '';
     if (this.isJustDown(Phaser.Input.Keyboard.KeyCodes.LEFT)) {
       anim = 'left';
@@ -219,10 +243,16 @@ export class GameScene extends Scene {
           x: boxToX,
           y: boxToY,
           duration: duration,
+          onStart: () => {
+            this.sfx.get('move-box')?.play();
+          },
           onComplete: () => {
             const target = this.getSpriteAt(this.targets, box.x, box.y);
             const color = box.getData('color');
             const onTarget = !!target && target.getData('color') === color;
+            if (onTarget) {
+              this.sfx.get('hit-target')?.play();
+            }
             if (!wasOnTarget && onTarget) {
               this.targetRecord[color] += 1;
             } else if (wasOnTarget && !onTarget) {
@@ -248,10 +278,17 @@ export class GameScene extends Scene {
         y: toY,
         duration: duration,
         onStart: () => {
+          if (toX === this.player.x && toY === this.player.y) {
+            this.sfx.get('wont-move')?.play();
+          }
           this.player.anims.play(anim);
+          this.sfx.get('footstep')?.play({
+            loop: true,
+          });
         },
         onComplete: () => {
           this.player.anims.pause(this.player.anims.currentAnim?.frames[0]);
+          this.sfx.get('footstep')?.stop();
         },
       });
     }
