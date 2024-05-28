@@ -2,7 +2,13 @@ import './style.css';
 
 import { Scene, Game, WEBGL, GameObjects } from 'phaser';
 import * as settings from './settings';
-import { LEVELS, DUDE_INDEX, WALL_INDEX, BOX_INDEXES } from './assets/levels';
+import {
+  LEVELS,
+  DUDE_INDEX,
+  WALL_INDEX,
+  BOX_INDEXES,
+  TARGET_INDEXES,
+} from './assets/levels';
 
 import tileSrc from './assets/sokoban_tilesheet.png';
 
@@ -12,7 +18,10 @@ class GameScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
   private walls!: Phaser.GameObjects.Sprite[];
   private boxes!: Phaser.GameObjects.Sprite[];
+  private targets!: Phaser.GameObjects.Sprite[];
   private keys!: Map<number, Phaser.Input.Keyboard.Key>;
+  private targetRecord!: Record<string, number>;
+  private totalTargets!: Record<string, number>;
 
   constructor() {
     super('scene-game');
@@ -44,11 +53,31 @@ class GameScene extends Scene {
       frame: WALL_INDEX - 1,
       origin: 0,
     });
-    this.boxes = layer.createFromTiles(BOX_INDEXES.grey, 0, {
-      key: 'tiles',
-      frame: BOX_INDEXES.grey - 1,
-      origin: 0,
+
+    this.boxes = Object.keys(BOX_INDEXES).flatMap((color) => {
+      const res = this.createItemSprites(
+        layer,
+        color,
+        BOX_INDEXES[color as keyof typeof BOX_INDEXES]
+      );
+      return res;
     });
+
+    this.totalTargets = {};
+    this.targets = Object.keys(TARGET_INDEXES).flatMap((color) => {
+      const res = this.createItemSprites(
+        layer,
+        color,
+        TARGET_INDEXES[color as keyof typeof TARGET_INDEXES]
+      );
+      this.totalTargets[color] = res.length;
+      return res;
+    });
+    this.targetRecord = Object.keys(TARGET_INDEXES).reduce((res, color) => {
+      res[color] = 0;
+      return res;
+    }, {} as Record<string, number>);
+
     const player = layer
       .createFromTiles(DUDE_INDEX, 0, {
         key: 'tiles',
@@ -104,6 +133,21 @@ class GameScene extends Scene {
       repeat: -1,
     });
   }
+
+  private createItemSprites(
+    layer: Phaser.Tilemaps.TilemapLayer,
+    color: string,
+    idx: number
+  ) {
+    const boxes = layer.createFromTiles(idx, 0, {
+      key: 'tiles',
+      frame: idx - 1,
+      origin: 0,
+    });
+    boxes.forEach((b) => b.setData('color', color));
+    return boxes;
+  }
+
   private setupkeys() {
     this.keys = new Map();
     this.addJustKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -145,7 +189,7 @@ class GameScene extends Scene {
       const hitWall = this.isOccupied(this.walls, targetX, targetY);
       let toX = hitWall ? this.player.x : targetX;
       let toY = hitWall ? this.player.y : targetY;
-      const duration = hitWall ? 0 : 500;
+      const duration = hitWall ? 200 : 500;
 
       const box = this.getSpriteAt(this.boxes, toX, toY);
       const boxToX = toX + dir[0] * settings.TILE_SIZE;
@@ -161,17 +205,31 @@ class GameScene extends Scene {
       }
 
       if (boxCanMove) {
+        const currentTarget = this.getSpriteAt(this.targets, box.x, box.y);
+        const wasOnTarget =
+          !!currentTarget &&
+          currentTarget.getData('color') === box.getData('color');
         this.tweens.add({
           targets: box,
           ease: 'linear',
           x: boxToX,
           y: boxToY,
           duration: duration,
-          onStart: () => {
-            this.player.anims.play(anim);
-          },
           onComplete: () => {
-            this.player.anims.pause(this.player.anims.currentAnim?.frames[0]);
+            const target = this.getSpriteAt(this.targets, box.x, box.y);
+            const color = box.getData('color');
+            const onTarget = !!target && target.getData('color') === color;
+            if (!wasOnTarget && onTarget) {
+              this.targetRecord[color] += 1;
+            } else if (wasOnTarget && !onTarget) {
+              this.targetRecord[color] -= 1;
+            }
+
+            // calculate winning condition
+            const won = Object.keys(this.targetRecord).every((color) => {
+              return this.targetRecord[color] === this.totalTargets[color];
+            });
+            console.log({ won });
           },
         });
       }
