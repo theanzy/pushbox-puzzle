@@ -1,5 +1,6 @@
 import { Scene } from 'phaser';
 import { GAME_WIDTH, TILE_SIZE } from './settings';
+import { LEVELS } from './assets/levels';
 
 export class LevelEnd extends Scene {
   constructor() {
@@ -28,10 +29,52 @@ export class LevelEnd extends Scene {
       })
       .setOrigin(0.5);
 
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') {
-        this.scene.start('scene-game', { level: currentLevel + 1 });
-      }
+    const restartBtn = this.add
+      .text(GAME_WIDTH / 2, 5 * TILE_SIZE, 'Restart level', {
+        fontFamily: 'Play',
+        fontSize: '24px',
+        color: '#ffffff',
+        align: 'center',
+        fixedWidth: TILE_SIZE * 4,
+        backgroundColor: 'hsl(24,86%,57%)',
+      })
+      .setPadding(TILE_SIZE / 4)
+      .setOrigin(0.5);
+    restartBtn.setInteractive();
+    restartBtn.on('pointerover', () => {
+      restartBtn.setBackgroundColor('hsla(24, 86%, 57%,0.7)');
     });
+    restartBtn.on('pointerout', () => {
+      restartBtn.setBackgroundColor('hsl(24,86%,57%)');
+    });
+    restartBtn.on('pointerdown', () => {
+      this.game.scene.start('scene-game', { level: currentLevel });
+      this.game.scene.stop('scene-level-end');
+    });
+
+    if (currentLevel < Object.keys(LEVELS).length) {
+      const nextLevelBtn = this.add
+        .text(GAME_WIDTH / 2, 6 * TILE_SIZE + TILE_SIZE / 4, 'Next level', {
+          fontFamily: 'Play',
+          fontSize: '24px',
+          color: '#ffffff',
+          align: 'center',
+          fixedWidth: TILE_SIZE * 4,
+          backgroundColor: 'hsl(24,6%,27%)',
+        })
+        .setPadding(TILE_SIZE / 4)
+        .setOrigin(0.5);
+      nextLevelBtn.setInteractive();
+      nextLevelBtn.on('pointerover', () => {
+        nextLevelBtn.setBackgroundColor('hsla(24, 6%, 27%,0.7)');
+      });
+      nextLevelBtn.on('pointerout', () => {
+        nextLevelBtn.setBackgroundColor('hsl(24,6%,27%)');
+      });
+      nextLevelBtn.on('pointerdown', () => {
+        this.game.scene.start('scene-game', { level: currentLevel + 1 });
+        this.game.scene.stop('scene-level-end');
+      });
+    }
   }
 }

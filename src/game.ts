@@ -234,10 +234,7 @@ export class GameScene extends Scene {
               return this.targetRecord[color] === this.totalTargets[color];
             });
             if (won) {
-              this.scene.start('scene-level-end', {
-                moves: 22,
-                currentLevel: this.currentLevel,
-              });
+              this.endLevel();
             }
           },
         });
@@ -258,6 +255,14 @@ export class GameScene extends Scene {
         },
       });
     }
+  }
+
+  private endLevel() {
+    this.scene.start('scene-level-end', {
+      moves: 22,
+      currentLevel: this.currentLevel,
+    });
+    this.game.scene.stop('scene-game');
   }
 
   private getSpriteAt(
