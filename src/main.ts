@@ -2,7 +2,7 @@ import './style.css';
 
 import { Scene, Game, WEBGL, GameObjects } from 'phaser';
 import * as settings from './settings';
-import { LEVELS, DUDE_INDEX, WALL_INDEX } from './assets/levels';
+import { LEVELS, DUDE_INDEX, WALL_INDEX, BOX_INDEXES } from './assets/levels';
 
 import tileSrc from './assets/sokoban_tilesheet.png';
 
@@ -11,6 +11,7 @@ const canvas = document.getElementById('game') as HTMLCanvasElement;
 class GameScene extends Scene {
   private player!: Phaser.GameObjects.Sprite;
   private walls!: Phaser.GameObjects.Sprite[];
+  private boxes!: Phaser.GameObjects.Sprite[];
   private keys!: Map<number, Phaser.Input.Keyboard.Key>;
 
   constructor() {
@@ -40,7 +41,12 @@ class GameScene extends Scene {
     }
     this.walls = layer.createFromTiles(WALL_INDEX, 0, {
       key: 'tiles',
-      frame: WALL_INDEX,
+      frame: WALL_INDEX - 1,
+      origin: 0,
+    });
+    this.boxes = layer.createFromTiles(BOX_INDEXES.grey, 0, {
+      key: 'tiles',
+      frame: BOX_INDEXES.grey - 1,
       origin: 0,
     });
     const player = layer
@@ -135,12 +141,42 @@ class GameScene extends Scene {
       const dir = this.getDir(anim);
       const targetX = this.player.x + dir[0] * settings.TILE_SIZE;
       const targetY = this.player.y + dir[1] * settings.TILE_SIZE;
-      const hitWall = this.isWall(this.walls, targetX, targetY);
-      const toX = hitWall ? this.player.x : targetX;
-      const toY = hitWall ? this.player.y : targetY;
+
+      const hitWall = this.isOccupied(this.walls, targetX, targetY);
+      let toX = hitWall ? this.player.x : targetX;
+      let toY = hitWall ? this.player.y : targetY;
       const duration = hitWall ? 0 : 500;
+
+      const box = this.getSpriteAt(this.boxes, toX, toY);
+      const boxToX = toX + dir[0] * settings.TILE_SIZE;
+      const boxToY = toY + dir[1] * settings.TILE_SIZE;
+      const boxCanMove =
+        box &&
+        !this.isOccupied(this.walls, boxToX, boxToY) &&
+        !this.isOccupied(this.boxes, boxToX, boxToY);
+
+      if (box && !boxCanMove) {
+        toX = this.player.x;
+        toY = this.player.y;
+      }
+
+      if (boxCanMove) {
+        this.tweens.add({
+          targets: box,
+          ease: 'linear',
+          x: boxToX,
+          y: boxToY,
+          duration: duration,
+          onStart: () => {
+            this.player.anims.play(anim);
+          },
+          onComplete: () => {
+            this.player.anims.pause(this.player.anims.currentAnim?.frames[0]);
+          },
+        });
+      }
+
       // TODO: increment steps if not hit wall
-      // TODO: can move box
       this.tweens.add({
         targets: this.player,
         ease: 'linear',
@@ -156,8 +192,21 @@ class GameScene extends Scene {
       });
     }
   }
-  private isWall(walls: Phaser.GameObjects.Sprite[], x: number, y: number) {
-    return walls.some((w) => w.x === x && w.y === y);
+
+  private getSpriteAt(
+    sprites: Phaser.GameObjects.Sprite[],
+    x: number,
+    y: number
+  ) {
+    return sprites.find((w) => w.x === x && w.y === y);
+  }
+
+  private isOccupied(
+    sprites: Phaser.GameObjects.Sprite[],
+    x: number,
+    y: number
+  ) {
+    return sprites.some((w) => w.x === x && w.y === y);
   }
 
   private getDir(anim: string) {
