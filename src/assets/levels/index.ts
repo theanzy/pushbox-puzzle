@@ -12,9 +12,13 @@ export const WALL_INDEX = 100;
 export const BOX_INDEXES = {
   grey: 37,
   blue: 35,
+  red: 34,
+  green: 36,
 } as const;
 
 export const TARGET_INDEXES = {
   grey: 78,
   blue: 52,
+  red: 39,
+  green: 65,
 } as const;

@@ -26,12 +26,13 @@ class GameScene extends Scene {
   constructor() {
     super('scene-game');
   }
-  preload() {
+  preload({ level }: { level: number } = { level: 0 }) {
     this.load.spritesheet('tiles', tileSrc, {
       frameWidth: settings.TILE_SIZE,
       startFrame: 0,
     });
-    this.load.tilemapTiledJSON('map', LEVELS[0]);
+    console.log('levels', LEVELS)
+    this.load.tilemapTiledJSON('map', LEVELS[level]);
   }
 
   create() {
@@ -286,12 +287,5 @@ new Game({
   width: settings.GAME_WIDTH,
   height: settings.GAME_HEIGHT,
   canvas,
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { y: 0, x: 0 },
-      // debug: true
-    },
-  },
   scene: [GameScene],
 });
