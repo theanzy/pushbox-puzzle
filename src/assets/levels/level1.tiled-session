@@ -3,8 +3,9 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "level1.json",
+    "activeFile": "level2.json",
     "expandedProjectPaths": [
+        "."
     ],
     "file.lastUsedOpenFilter": "All Files (*)",
     "fileStates": {
@@ -31,12 +32,15 @@
             "scaleInDock": 1
         },
         "level2.json": {
-            "scale": 1.5,
+            "scale": 1,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 257.66666666666663,
-                "y": 340.3333333333333
+                "x": 260.5,
+                "y": 382.5
             }
+        },
+        "level2.json#Level": {
+            "scaleInDock": 1
         },
         "level2.json#sokoban_tilesheet": {
             "scaleInDock": 0.75
@@ -62,14 +66,15 @@
     "map.tileWidth": 64,
     "map.width": 10,
     "openFiles": [
-        "level1.json"
+        "level1.tmx",
+        "level2.json"
     ],
     "project": "level1.tiled-project",
     "recentFiles": [
+        "level1.tmx",
         "level2.json",
         "level2.tmx",
-        "level1.json",
-        "level1.tmx"
+        "level1.json"
     ],
     "tileset.embedInMap": true,
     "tileset.tileSize": {
