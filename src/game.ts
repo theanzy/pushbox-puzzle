@@ -3,18 +3,11 @@ import './style.css';
 import { Scene } from 'phaser';
 import * as settings from './settings';
 import {
-  LEVELS,
   DUDE_INDEX,
   WALL_INDEX,
   BOX_INDEXES,
   TARGET_INDEXES,
 } from './assets/levels';
-
-import tileSrc from './assets/sokoban_tilesheet.png';
-import footStepSrc from './assets/sounds/footstep_grass_000.ogg';
-import moveSoundSrc from './assets/sounds/impactPlank_medium_003.ogg';
-import hitTargetSoundSrc from './assets/sounds/select_007.ogg';
-import wontMoveSrc from './assets/sounds/error_005.ogg';
 
 type AnySound =
   | Phaser.Sound.WebAudioSound
@@ -33,21 +26,6 @@ export class GameScene extends Scene {
   private sfx!: Map<string, AnySound>;
   constructor() {
     super('scene-game');
-  }
-  preload() {
-    this.load.spritesheet('tiles', tileSrc, {
-      frameWidth: settings.TILE_SIZE,
-      startFrame: 0,
-    });
-    this.load.audio('footstep', footStepSrc);
-    this.load.audio('move-box', moveSoundSrc);
-    this.load.audio('hit-target', hitTargetSoundSrc);
-    this.load.audio('wont-move', wontMoveSrc);
-
-    for (let i = 0; i < Object.keys(LEVELS).length; i++) {
-      const key = `map-${i + 1}`;
-      this.load.tilemapTiledJSON(key, LEVELS[i]);
-    }
   }
 
   create({ level = 1 }: { level: number }) {
@@ -114,7 +92,7 @@ export class GameScene extends Scene {
     this.sfx = new Map();
 
     this.sfx.set('footstep', this.sound.add('footstep'));
-    this.sfx.get('footstep')?.setVolume(0.02);
+    this.sfx.get('footstep')?.setVolume(0.1);
     this.sfx.set('move-box', this.sound.add('move-box'));
     this.sfx.get('move-box')?.setVolume(0.2);
     this.sfx.set('hit-target', this.sound.add('hit-target'));
