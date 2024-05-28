@@ -29,6 +29,7 @@ export class LevelEnd extends Scene {
       })
       .setOrigin(0.5);
 
+    const sfx = this.sound.add('button-click');
     const restartBtn = this.add
       .text(GAME_WIDTH / 2, 5 * TILE_SIZE, 'Restart level', {
         fontFamily: 'Play',
@@ -48,6 +49,7 @@ export class LevelEnd extends Scene {
       restartBtn.setBackgroundColor('hsl(24,86%,57%)');
     });
     restartBtn.on('pointerdown', () => {
+      sfx.play();
       this.game.scene.start('scene-game', { level: currentLevel });
       this.game.scene.stop('scene-level-end');
     });
@@ -72,6 +74,7 @@ export class LevelEnd extends Scene {
         nextLevelBtn.setBackgroundColor('hsl(24,6%,27%)');
       });
       nextLevelBtn.on('pointerdown', () => {
+        sfx.play();
         this.game.scene.start('scene-game', { level: currentLevel + 1 });
         this.game.scene.stop('scene-level-end');
       });
