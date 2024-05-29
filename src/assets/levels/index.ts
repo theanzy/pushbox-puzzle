@@ -14,6 +14,7 @@ export const BOX_INDEXES = {
   blue: 35,
   red: 34,
   green: 36,
+  brown: 33,
 } as const;
 
 export const TARGET_INDEXES = {
@@ -21,4 +22,5 @@ export const TARGET_INDEXES = {
   blue: 52,
   red: 39,
   green: 65,
+  brown: 26,
 } as const;
