@@ -31,7 +31,7 @@ export class Preloader extends Scene {
   }
 
   create() {
-    this.scene.start('scene-game', { level: 5 });
+    this.scene.start('scene-game', { level: 1 });
     // this.scene.start('scene-level-end', { currentLevel: 1, moves: 10 });
     this.scene.stop('scene-preloader');
   }

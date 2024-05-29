@@ -22,6 +22,7 @@ export class GameScene extends Scene {
   private targetRecord!: Record<string, number>;
   private totalTargets!: Record<string, number>;
   private currentLevel!: number;
+  private moves!: number;
 
   private sfx!: Map<string, AnySound>;
   constructor() {
@@ -99,6 +100,8 @@ export class GameScene extends Scene {
     this.sfx.get('hit-target')?.setVolume(0.2);
     this.sfx.set('wont-move', this.sound.add('wont-move'));
     this.sfx.get('wont-move')?.setVolume(0.2);
+
+    this.moves = 0;
   }
 
   private setupPlayerAnims() {
@@ -249,7 +252,9 @@ export class GameScene extends Scene {
         });
       }
 
-      // TODO: increment steps if not hit wall
+      if (toX !== this.player.x || toY !== this.player.y) {
+        this.moves += 1;
+      }
       this.tweens.add({
         targets: this.player,
         ease: 'linear',
@@ -275,7 +280,7 @@ export class GameScene extends Scene {
 
   private endLevel() {
     this.scene.start('scene-level-end', {
-      moves: 22,
+      moves: this.moves,
       currentLevel: this.currentLevel,
     });
     this.game.scene.stop('scene-game');
