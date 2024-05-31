@@ -5,6 +5,7 @@ import moveSoundSrc from './assets/sounds/impactPlank_medium_003.ogg';
 import hitTargetSoundSrc from './assets/sounds/select_007.ogg';
 import wontMoveSrc from './assets/sounds/error_005.ogg';
 import buttonClickSoundSrc from './assets/sounds/switch_002.ogg';
+import menuSrc from './assets/menu.png';
 
 import * as settings from './settings';
 import { LEVELS } from './assets/levels';
@@ -18,6 +19,7 @@ export class Preloader extends Scene {
       frameWidth: settings.TILE_SIZE,
       startFrame: 0,
     });
+    this.load.image('menu-icon', menuSrc);
     this.load.audio('footstep', footStepSrc);
     this.load.audio('move-box', moveSoundSrc);
     this.load.audio('hit-target', hitTargetSoundSrc);

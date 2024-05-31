@@ -102,6 +102,66 @@ export class GameScene extends Scene {
     this.sfx.get('wont-move')?.setVolume(0.2);
 
     this.moves = 0;
+
+    this.drawHeader(level);
+  }
+
+  private drawHeader(level: number) {
+    this.add
+      .text(
+        settings.GAME_WIDTH - settings.TILE_SIZE / 1.5,
+        settings.TILE_SIZE / 4,
+        `Level ${level}`,
+        {
+          fontFamily: 'Play',
+          fontSize: '24px',
+          color: '#ffffff',
+          backgroundColor: 'hsla(0,0%,0%,0.7)',
+        }
+      )
+      .setPadding(settings.TILE_SIZE / 4)
+      .setOrigin(1, 0);
+
+    const sfx = this.sound.add('button-click');
+    const rect = this.add
+      .rectangle(
+        settings.GAME_WIDTH - settings.TILE_SIZE / 1.5,
+        settings.TILE_SIZE / 2 - 5,
+        32,
+        32,
+        0xe66102
+      )
+      .setOrigin(0);
+    rect.setInteractive();
+    rect.on('pointerover', () => {
+      rect.setFillStyle(0xffa500);
+    });
+    rect.on('pointerout', () => {
+      rect.setFillStyle(0xe66102);
+    });
+
+    rect.on('pointerdown', () => {
+      sfx.play();
+      this.scene.start('scene-levels');
+      this.scene.stop('scene-game');
+    });
+    const menuBtn = this.add
+      .sprite(
+        settings.GAME_WIDTH - settings.TILE_SIZE / 1.5,
+        settings.TILE_SIZE / 2 - 5,
+        'menu-icon'
+      )
+      .setOrigin(0);
+
+    // menuBtn.on('pointerover', () => {
+    //   menuBtn.setTint(0xffa500);
+    // });
+    // menuBtn.on('pointerout', () => {
+    //   menuBtn.setTint(0xffffff);
+    // });
+
+    menuBtn.displayWidth = 32;
+    menuBtn.displayHeight = 32;
   }
 
   private setupPlayerAnims() {
